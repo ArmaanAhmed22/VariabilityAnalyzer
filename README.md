@@ -33,3 +33,7 @@ Snakefile
 ```
 
 Run `snakemake Output/Example/variability_map.png -c1` to generate `variability_map.png` and `variability_map.csv`
+
+### Example Output: *Protease*
+
+![variability_map.png](https://raw.githubusercontent.com/ArmaanAhmed22/VariabilityAnalyzer/master/Output/Protease/variability_map.png)
