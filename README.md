@@ -1,6 +1,8 @@
 # VariabilityAnalyzer
 
 ![frontcover](https://raw.githubusercontent.com/ArmaanAhmed22/VariabilityAnalyzer/master/Assets/front_cover.png)
+<sup>*figure adapted from LANL's <a href="https://www.hiv.lanl.gov/content/sequence/HIV/MAP/landmark.html">HIV-1 Gene Map</a></sup>
+
 A tool to help visualize the variability of a nucleic acid sequence (genome, gene, etc).
 
 ## Analysis
