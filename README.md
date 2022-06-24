@@ -1,5 +1,6 @@
 # VariabilityAnalyzer
 
+![frontcover](https://raw.githubusercontent.com/ArmaanAhmed22/VariabilityAnalyzer/master/Assets/front_cover.png)
 A tool to help visualize the variability of a nucleic acid sequence (genome, gene, etc).
 
 ## Analysis
