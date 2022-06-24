@@ -19,6 +19,14 @@ An input, aligned reference sequence and quasispecies files should be placed wit
 
 Next, run `snakemake Output/{file}/variability_map.png -c1` to generate the output files.
 
+### Specific Settings
+
+In the `Pipeline/SETTINGS.json` file, the following can be toggled:
+
+* `INCLUDE_INSERTIONS_AND_DELETIONS (true/false)`: Whether or not to include insertions and deletions in the entropy calculation. Default: `false`.
+
+* `INCLUDE_AMGIGUOUS_NUCLEOTIDES (true/false)`: Whether or not to include ambiguous nucleotides in the entropy calculation. Default: `false`.
+
 ## Example
 
 Directory:
