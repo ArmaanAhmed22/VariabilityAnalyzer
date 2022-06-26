@@ -1,6 +1,4 @@
-import inspect
 import numpy as np
-import scipy
 import pandas as pd
 from tqdm import trange
 import seaborn as sns
@@ -8,7 +6,9 @@ import matplotlib.pyplot as plt
 import math
 
 from tqdm import tqdm
-import matplotlib.collections as mc
+
+import json
+from functools import reduce
 
 NUCS = {
     "A": "A",
@@ -27,7 +27,6 @@ NUCS = {
     "V": "ACG",
     "N": "ACGT",
 }
-from functools import reduce
 def get_all_possible_sequences_length(sequence):
     return reduce(lambda x, y: x * y, [len(NUCS[nuc]) for nuc in sequence])
     
@@ -57,12 +56,17 @@ def get_all_possible_sequences(sequence):
 
 #Fix for IUPAC Ambiguous nucleotides
 # 
-with open(snakemake.input[0]) as group_by_position_h:
+with open(snakemake.input[0]) as group_by_position_h, open("Pipeline/SETTINGS.json") as settings_h:
     data = pd.read_csv(group_by_position_h, header=None, dtype=str)
     for i in trange(data.shape[0], desc="Finding ends of sequences"):
         fvi = data.iloc[i].first_valid_index()
         lvi = data.iloc[i].last_valid_index()
         data.iloc[i, fvi:lvi] = data.iloc[i, fvi:lvi].fillna("")
+    SETTINGS = json.load(settings_h)
+    
+    if not SETTINGS["INCLUDE_AMGIGUOUS_NUCLEOTIDES"]:
+        data = data.applymap(lambda x: np.NaN if type(x) == str and False in [nuc in "ACGT" for nuc in x] else x)
+    
     data2 = data.applymap(lambda x: np.NaN if (type(x) != str and math.isnan(x)) or len(x) != 1 else x)
 
 
@@ -120,7 +124,23 @@ def get_IUPAC_changed_frequencies(pd_data) -> list[pd.Series]:
             dict_total_frequencies[""] = total_frequencies[""]
         out.append(dict_total_frequencies)
     return out
-                
+
+def generate_rolling_average(pd_data, x_axis, y_axis, ax):
+    y_data = pd_data[y_axis]
+    x_data = pd_data[x_axis]
+    
+    number_items_in_rolling_average = SETTINGS.get("ROLLING_AVERAGE_WINDOW", -1)
+    
+    if number_items_in_rolling_average <= 0:
+        return
+    
+    final_pd = pd.DataFrame({y_axis: y_data.rolling(number_items_in_rolling_average).mean() , x_axis: x_data})
+    for i in range(number_items_in_rolling_average-1):
+        final_pd[y_axis].iloc[i] = y_data.iloc[:i + 1].mean()
+        
+    final_pd = final_pd[final_pd[y_axis].notna()]
+    
+    sns.lineplot(x=x_axis, y=y_axis, data=final_pd, ax=ax)              
 
 def main():
     frequencies_insertions_deletions = get_IUPAC_changed_frequencies(data)
@@ -136,6 +156,7 @@ def main():
     dataframe = pd.DataFrame({"Entropy": entropies, "Entropy (No Insertions/Deletions)": entropies_no_insertions_deletions, "Change in Entropy": entropies - entropies_no_insertions_deletions, "Occurences": occurences, "Insertion Deletion Frequencies": insertion_deletion_frequencies, "Position": range(1, data.shape[1] + 1)})
     #dataframe = pd.DataFrame({"Entropy": entropies[2253:2550], "Position": range(2253, 2550)})
     sns.lineplot(x="Position", y="Entropy", data=dataframe, ax=axes[0])
+    generate_rolling_average(dataframe, "Position", "Entropy", axes[0])
     sns.lineplot(x="Position", y="Entropy (No Insertions/Deletions)", data=dataframe, ax=axes[1])
     sns.lineplot(x="Position", y="Change in Entropy", data=dataframe, ax=axes[2])
     sns.lineplot(x="Position", y="Insertion Deletion Frequencies", data=dataframe, ax=axes[3])

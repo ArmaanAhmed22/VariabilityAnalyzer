@@ -22,6 +22,14 @@ An input, aligned reference sequence and quasispecies files should be placed wit
 
 Next, run `snakemake Output/{file}/variability_map.png -c1` to generate the output files.
 
+### Specific Settings
+
+In the `Pipeline/SETTINGS.json` file, the following can be toggled:
+
+* `INCLUDE_AMGIGUOUS_NUCLEOTIDES (true/false)`: Whether or not to include ambiguous nucleotides in the entropy calculation.
+
+*  `ROLLING_AVERAGE_WINDOW (int)`: The length of the window included in the rolling average. Numbers `<=0` will remove the rolling average.
+
 ## Example
 
 Directory:
