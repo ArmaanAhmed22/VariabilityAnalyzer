@@ -1,6 +1,4 @@
-import inspect
 import numpy as np
-import scipy
 import pandas as pd
 from tqdm import trange
 import seaborn as sns
@@ -69,11 +67,7 @@ with open(snakemake.input[0]) as group_by_position_h, open("Pipeline/SETTINGS.js
     if not SETTINGS["INCLUDE_AMGIGUOUS_NUCLEOTIDES"]:
         data = data.applymap(lambda x: np.NaN if type(x) == str and False in [nuc in "ACGT" for nuc in x] else x)
     
-    if not SETTINGS["INCLUDE_INSERTIONS_AND_DELETIONS"]:
-        data = data.applymap(lambda x: np.NaN if (type(x) != str and math.isnan(x)) or len(x) != 1 else x)
-        data2 = data
-    else:
-        data2 = data.applymap(lambda x: np.NaN if (type(x) != str and math.isnan(x)) or len(x) != 1 else x)
+    data2 = data.applymap(lambda x: np.NaN if (type(x) != str and math.isnan(x)) or len(x) != 1 else x)
 
 
 def get_entropies(pd_data, IUPAC_changed_frequencies):
@@ -135,8 +129,15 @@ def generate_rolling_average(pd_data, x_axis, y_axis, ax):
     y_data = pd_data[y_axis]
     x_data = pd_data[x_axis]
     
-    final_pd = pd.DataFrame({y_axis: y_data.rolling(100).mean() , x_axis: x_data})
-    print(final_pd)
+    number_items_in_rolling_average = SETTINGS.get("ROLLING_AVERAGE_WINDOW", -1)
+    
+    if number_items_in_rolling_average <= 0:
+        return
+    
+    final_pd = pd.DataFrame({y_axis: y_data.rolling(number_items_in_rolling_average).mean() , x_axis: x_data})
+    for i in range(number_items_in_rolling_average-1):
+        final_pd[y_axis].iloc[i] = y_data.iloc[:i + 1].mean()
+        
     final_pd = final_pd[final_pd[y_axis].notna()]
     
     sns.lineplot(x=x_axis, y=y_axis, data=final_pd, ax=ax)              

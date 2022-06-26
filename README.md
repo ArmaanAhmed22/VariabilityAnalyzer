@@ -23,9 +23,9 @@ Next, run `snakemake Output/{file}/variability_map.png -c1` to generate the outp
 
 In the `Pipeline/SETTINGS.json` file, the following can be toggled:
 
-* `INCLUDE_INSERTIONS_AND_DELETIONS (true/false)`: Whether or not to include insertions and deletions in the entropy calculation. Default: `false`.
+* `INCLUDE_AMGIGUOUS_NUCLEOTIDES (true/false)`: Whether or not to include ambiguous nucleotides in the entropy calculation.
 
-* `INCLUDE_AMGIGUOUS_NUCLEOTIDES (true/false)`: Whether or not to include ambiguous nucleotides in the entropy calculation. Default: `false`.
+*  `ROLLING_AVERAGE_WINDOW (int)`: The length of the window included in the rolling average. Numbers `<=0` will remove the rolling average.
 
 ## Example
 
